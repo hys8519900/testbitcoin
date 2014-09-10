@@ -1,0 +1,32 @@
+test : test.cpp 
+	g++ test.cpp -o test -DHAVE_WORKING_BOOST_SLEEP -L. -lbitcoin_util -lboost_system -lboost_program_options -lboost_filesystem -lboost_thread -lcrypto -lbitcoin_common -L./crypto -lbitcoin_crypto -I./leveldb/include/ -L./leveldb -lleveldb -pthread
+
+m_testlibserver : m_testlibserver.cpp
+	g++ libbitcoin_common_a-chainparams.o  m_testlibserver.cpp -o m_testlibserver -DHAVE_WORKING_BOOST_SLEEP -L. -lbitcoin_util -lboost_system -lboost_program_options -lboost_filesystem -lboost_thread -lcrypto -lbitcoin_common -L./crypto -lbitcoin_crypto -I./leveldb/include/ -L./leveldb -lleveldb -pthread -lbitcoin_myserver
+
+m_testnetgdb : m_testnet.cpp
+	g++ libbitcoin_common_a-chainparams.o  m_testnet.cpp -o m_testnet -DHAVE_WORKING_BOOST_SLEEP -lbitcoin_server -lbitcoin_cli -lbitcoin_wallet -L. -I./leveldb/include/ -L./leveldb -lleveldb -lmemenv -lbitcoin_util -lboost_system -lboost_program_options -lboost_filesystem -lboost_thread -lcrypto -lbitcoin_common -L./crypto -lbitcoin_crypto  -pthread  -lanl -ldb_cxx-4.8 -lssl -g
+	
+
+m_testnet : m_testnet.cpp
+	g++ libbitcoin_common_a-chainparams.o  m_testnet.cpp -o m_testnet -DHAVE_WORKING_BOOST_SLEEP -lbitcoin_server -lbitcoin_cli -lbitcoin_wallet -L. -I./leveldb/include/ -L./leveldb -lleveldb -lmemenv -lbitcoin_util -lboost_system -lboost_program_options -lboost_filesystem -lboost_thread -lcrypto -lbitcoin_common -L./crypto -lbitcoin_crypto  -pthread  -lanl -ldb_cxx-4.8 -lssl
+	
+
+m_testleveldb : m_testleveldb.cpp
+	g++ m_testleveldb.cpp -o m_testleveldb -I./leveldb/include -L./leveldb -lleveldb -lmemenv -lpthread
+	
+m_testleveldbwrapper : m_testleveldbwrapper.cpp
+	g++ libbitcoin_common_a-chainparams.o  m_testleveldbwrapper.cpp -o m_testleveldbwrapper -DHAVE_WORKING_BOOST_SLEEP -lbitcoin_myserver -L. -I./leveldb/include/ -L./leveldb -lleveldb -lmemenv -lbitcoin_util -lboost_system -lboost_program_options -lboost_filesystem -lboost_thread -lcrypto -lbitcoin_common -L./crypto -lbitcoin_crypto  -pthread  -lanl  
+	
+m_testberkeleyDB : m_testberkeleyDB.cpp
+	g++ m_testberkeleyDB.cpp -o m_testberkeleyDB -ldb_cxx-4.8
+
+m_testBase58 : m_testBase58.cpp
+	g++ libbitcoin_common_a-chainparams.o  m_testBase58.cpp -o m_testBase58 -DHAVE_WORKING_BOOST_SLEEP -lbitcoin_server -lbitcoin_cli -lbitcoin_wallet -L. -I./leveldb/include/ -L./leveldb -lleveldb -lmemenv -lbitcoin_util -lboost_system -lboost_program_options -lboost_filesystem -lboost_thread -lcrypto -lbitcoin_common -L./crypto -lbitcoin_crypto  -pthread  -lanl -ldb_cxx-4.8 -lssl
+	
+m_printBlockfile_tx : m_printBlockfile_tx.cpp
+	g++ m_printBlockfile_tx.cpp -o m_printBlockfile_tx -DHAVE_WORKING_BOOST_SLEEP -L. -lbitcoin_util -lboost_system -lboost_program_options -lboost_filesystem -lboost_thread -lcrypto -lbitcoin_common -L./crypto -lbitcoin_crypto -I./leveldb/include/ -L./leveldb -lleveldb -pthread
+
+m_loadblockchain : m_loadblockchain.cpp
+	g++ m_loadblockchain.cpp -o m_loadblockchain $(LDFLAGS)
+

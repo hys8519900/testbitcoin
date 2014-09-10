@@ -1,0 +1,6 @@
+*.[oah]
+blockindex
+crypto
+leveldb
+*.dat
+bin
