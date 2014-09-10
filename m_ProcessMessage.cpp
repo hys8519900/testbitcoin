@@ -79,6 +79,27 @@ int HandleSocket(CNode *pnode)
 	return 0;
 }
 
+bool ProcessNodeMessages(CNode* pfrom)
+{
+	std::deque<CNetMessage>::iterator it = pfrom->vRecvMsg.begin();
+	while(it != pfrom->vRecvMsg.end())
+	{
+		CNetMessage& msg = *it;
+	
+		if(!msg.complete())
+			break;
+		
+		it++;
+		
+		//Scan for message start
+		if(memcmp(msg.hdr.pchMessageStart, Params().MessageStart(), MESSAGE_START_SIZE) != 0)
+		{
+			cout<< "PROCESSMESSAGE: INVAILD MESSAGESTART"<< endl;
+			break;
+		}
+	}
+}
+
 int main()
 {
 	SelectParams(CBaseChainParams::MAIN);
@@ -102,6 +123,7 @@ int main()
 	{
 		HandleSocket(pnode);
 		//add ProcessMessage to let vSendMsg & vRecvMsg empty 
+		ProcessNodeMessages(pnode);
 	}
 
 }
