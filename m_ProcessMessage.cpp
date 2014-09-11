@@ -4,6 +4,7 @@
 #include "chainparams.h" 
 #include "compat.h"
 #include "main.h"
+#include "addrman.h"
 
 using std::cout;
 using std::endl;
@@ -149,7 +150,12 @@ bool ProcessMessage(CNode* pfrom, string strCommand, CDataStream& vRecv)
 			// Advertise out address	
 			// ...
 			// Get recent addresses
-		
+			if(pfrom->fOneShot || pfrom->nVersion >= CADDR_TIME_VERSION || addrman.size() < 1000)
+			{
+				pfrom->PushMessage("getaddr");
+				pfrom->fGetAddr = true;
+			}
+			addrman.Good(pfrom->addr);
 		}
 		else
 		{
