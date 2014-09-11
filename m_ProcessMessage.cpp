@@ -143,6 +143,17 @@ bool ProcessNodeMessages(CNode* pfrom)
 	return true;
 }
 
+bool SendNodeMessages(CNode* pnode)
+{
+	
+}
+
+void MessageHandler(CNode* pnode)
+{
+	ProcessNodeMessages(pnode);
+	SendNodeMessages(pnode);	
+}
+
 int main()
 {
 	SelectParams(CBaseChainParams::MAIN);
@@ -165,7 +176,7 @@ int main()
 	{
 		HandleSocket(pnode);
 		//add ProcessMessage to let vSendMsg & vRecvMsg empty 
-		ProcessNodeMessages(pnode);
+		MessageHandler(pnode);	
 	}
 
 }
