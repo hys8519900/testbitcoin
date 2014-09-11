@@ -6,6 +6,7 @@
 
 using std::cout;
 using std::endl;
+using std::string;
 
 typedef long long int64; 
 typedef unsigned long long uint64; 
@@ -79,6 +80,11 @@ int HandleSocket(CNode *pnode)
 	return 0;
 }
 
+bool ProcessMessage(CNode* pfrom, string strCommand, CDataStream& vRecv)
+{
+		
+}
+
 bool ProcessNodeMessages(CNode* pfrom)
 {
 	std::deque<CNetMessage>::iterator it = pfrom->vRecvMsg.begin();
@@ -97,6 +103,37 @@ bool ProcessNodeMessages(CNode* pfrom)
 			cout<< "PROCESSMESSAGE: INVAILD MESSAGESTART"<< endl;
 			break;
 		}
+
+		//Read header
+		CMessageHeader& hdr = msg.hdr;
+		if(!hdr.IsValid())
+		{
+			cout<< "PROCESSMESSAGE: ERRORS IN HEADER"<< endl;
+			continue;	
+		}
+		string strCommand = hdr.GetCommand();
+
+		//Message size
+		unsigned int nMessageSize = hdr.nMessageSize;
+	
+		//Checksum
+		CDataStream& vRecv = msg.vRecv;
+		uint256 hash = Hash(vRecv.begin(), vRecv.begin() + nMessageSize);
+		unsigned int nChecksum = 0;
+		memcpy(&nChecksum, &hash, sizeof(nChecksum));
+		if(nChecksum != hdr.nChecksum)
+		{
+			cout << "Checksum error" << endl;
+			continue;
+		}
+
+		//Process message
+		bool fRet = false;
+		fRet = ProcessMessage(pfrom, strCommand, vRecv);
+		if(!fRet)
+			cout << "ProcessMessage() failed" << endl;
+
+		
 	}
 }
 
