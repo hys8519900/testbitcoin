@@ -9,5 +9,5 @@ all : $(OBJ)
 $(OBJDIR)/% : %.cpp
 	g++ $< -o $@ $(LDFLAGS)
 
-m_loadblockchain_gdb : m_loadblockchain.cpp
+tmpgdb : m_LogPrint.cpp
 	g++ $< -o bin/$@ $(LDFLAGS) -g -O0
