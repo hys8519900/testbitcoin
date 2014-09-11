@@ -148,6 +148,12 @@ bool ProcessMessage(CNode* pfrom, string strCommand, CDataStream& vRecv)
 		{
 			// Advertise out address	
 			// ...
+			// Get recent addresses
+		
+		}
+		else
+		{
+			//...
 		}
 
 		// Relay alerts
@@ -161,6 +167,20 @@ bool ProcessMessage(CNode* pfrom, string strCommand, CDataStream& vRecv)
 		//cPeerBlockCounts.input(pfrom->nStartingHeight);
 	}
 
+	else if(pfrom->nVersion == 0)
+	{
+		// Must have a version message before anything else
+		//Misbehaving(pfrom->GetId(), 1);
+		return false;
+	}	
+
+	else if(strCommand == "verack")
+	{
+		pfrom->SetRecvVersion(std::min(pfrom->nVersion, PROTOCOL_VERSION));	
+	}
+
+	
+	
 	return true;
 }
 
