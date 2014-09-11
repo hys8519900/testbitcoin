@@ -134,8 +134,13 @@ bool ProcessNodeMessages(CNode* pfrom)
 		if(!fRet)
 			cout << "ProcessMessage() failed" << endl;
 
-		
+		break;
 	}
+
+	if(!pfrom->fDisconnect)
+		pfrom->vRecvMsg.erase(pfrom->vRecvMsg.begin(), it);
+
+	return true;
 }
 
 int main()
