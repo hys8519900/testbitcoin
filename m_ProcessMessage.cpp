@@ -82,7 +82,8 @@ int HandleSocket(CNode *pnode)
 
 bool ProcessMessage(CNode* pfrom, string strCommand, CDataStream& vRecv)
 {
-		
+	LogPrintf("received: %s (%u bytes)\n", strCommand, vRecv.size());			
+	return true;
 }
 
 bool ProcessNodeMessages(CNode* pfrom)
@@ -141,7 +142,6 @@ int main()
 {
 	SelectParams(CBaseChainParams::MAIN);
 	fPrintToConsole = true;
-	fDebug = true;
 
 	CAddress addr;
 	const char *pszDest = "192.168.1.105";
