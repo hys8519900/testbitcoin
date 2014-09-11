@@ -3,6 +3,7 @@
 #include "chainparamsbase.h"
 #include "chainparams.h" 
 #include "compat.h"
+#include "main.h"
 
 using std::cout;
 using std::endl;
@@ -40,9 +41,7 @@ int HandleSocket(CNode *pnode)
 		return 1;
 	}
 	
-	
-	if(FD_ISSET(pnode->hSocket, &fdsetRecv))
-	{
+	if(FD_ISSET(pnode->hSocket, &fdsetRecv)) {
 		char pchBuf[0x10000];
 		int nBytes = recv(pnode->hSocket, pchBuf, sizeof(pchBuf), 0);
 		if(nBytes > 0)
@@ -52,7 +51,6 @@ int HandleSocket(CNode *pnode)
 			pnode->nRecvBytes += nBytes;
 			pnode->RecordBytesRecv(nBytes);
 
-			cout<< "receive data " <<endl;
 		}
 		else
 		{
@@ -83,6 +81,86 @@ int HandleSocket(CNode *pnode)
 bool ProcessMessage(CNode* pfrom, string strCommand, CDataStream& vRecv)
 {
 	LogPrintf("received: %s (%u bytes)\n", strCommand, vRecv.size());			
+
+	if(strCommand == "version")
+	{
+		// Each connection can only send one version message
+		if(pfrom->nVersion != 0)
+		{
+			pfrom->PushMessage("reject", strCommand, REJECT_DUPLICATE, string("Duplicate version message"));
+			//delete Misbehaving
+			return false;
+		}
+
+		int64_t nTime;
+		CAddress addrMe;
+		CAddress addrFrom;
+		uint64_t nNonce = 1;
+		vRecv >> pfrom->nVersion >> pfrom->nServices >> nTime >> addrMe;
+		if(pfrom->nVersion < MIN_PEER_PROTO_VERSION)
+		{
+			//disconnect from peers older than this proto version
+			LogPrintf("partner %s using obsolete version %i; disconnecting\n", pfrom->addr.ToString(), pfrom->nVersion);
+			pfrom->PushMessage("reject", strCommand, REJECT_OBSOLETE, strprintf("Version must be %d or greater", MIN_PEER_PROTO_VERSION));
+			pfrom->fDisconnect = true;
+			return false;
+		}
+
+		if(pfrom->nVersion == 10300)
+			pfrom->nVersion = 300;
+		if(!vRecv.empty())
+			vRecv >> addrFrom >> nNonce;
+		if(!vRecv.empty()) {
+			vRecv >> pfrom->strSubVer;
+			pfrom->cleanSubVer = SanitizeString(pfrom->strSubVer);
+		}
+		if(!vRecv.empty())
+			vRecv >> pfrom->nStartingHeight;
+		if(!vRecv.empty())
+			vRecv >> pfrom->fRelayTxes; // set to true after we get the first filter* message
+		else
+			pfrom->fRelayTxes = true;
+
+		if(pfrom->fInbound && addrMe.IsRoutable())
+		{
+			pfrom->addrLocal = addrMe;
+			SeenLocal(addrMe);
+		}
+			
+		//Disconnect if we connected to ourself
+		if(nNonce == nLocalHostNonce && nNonce > 1)
+		{
+			LogPrintf("connected to self at %s, disconnecting\n", pfrom->addr.ToString());
+			pfrom->fDisconnect = true;
+			return true;
+		}		
+
+		if(pfrom->fInbound)
+			pfrom->PushVersion();
+
+		pfrom->fClient = !(pfrom->nServices & NODE_NETWORK);
+
+		//Change version
+		pfrom->PushMessage("verack");
+		pfrom->ssSend.SetVersion(std::min(pfrom->nVersion, PROTOCOL_VERSION));
+
+		if(!pfrom->fInbound)
+		{
+			// Advertise out address	
+			// ...
+		}
+
+		// Relay alerts
+		// ...
+
+		pfrom->fSuccessfullyConnected = true;
+
+		LogPrintf("receive version message: %s: version %d, blocks=%d, from=%s, peer=%s\n", pfrom->cleanSubVer, pfrom->nVersion, pfrom->nStartingHeight, addrFrom.ToString(), pfrom->addr.ToString());
+
+		//AddTimeData(pfrom->addr, nTime);
+		//cPeerBlockCounts.input(pfrom->nStartingHeight);
+	}
+
 	return true;
 }
 
