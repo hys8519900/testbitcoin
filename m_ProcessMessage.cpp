@@ -272,8 +272,8 @@ bool ProcessMessage(CNode* pfrom, string strCommand, CDataStream& vRecv)
 			
 			pfrom->AddInventoryKnown(inv);
 			
-			bool fAlreadyHave = AlreadyHave(inv);
-			LogPrintf("got inventory: %s  %s\n", inv.ToString(), fAlreadyHave ? "have" : "new");
+			//bool fAlreadyHave = AlreadyHave(inv);
+			LogPrintf("got inventory: %s\n", inv.ToString());
 		}
 	}	
 	
