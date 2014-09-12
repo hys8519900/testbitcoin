@@ -10,10 +10,37 @@ using std::cout;
 using std::endl;
 using std::string;
 using std::vector;
+using std::map;
 
 typedef long long int64; 
 typedef unsigned long long uint64; 
 
+struct COrphanBlock {
+	uint256 hashBlock;
+	uint256 hashPrev;
+	vector<unsigned char> vchBlock;
+};
+
+extern map<uint256, COrphanBlock*> mapOrphanBlocks;
+
+extern map<uint256, CTransaction> mapOrphanTransactions;
+
+bool AlreadyHave(const CInv& inv)
+{
+	switch (inv.type)
+	{
+	case MSG_TX:
+		{
+			bool txInMap = false;
+			txInMap = mempool.exists(inv.hash);
+			return txInMap || mapOrphanTransactions.count(inv.hash) || pcoinsTip->HaveCoins(inv.hash);	
+		}
+	case MSG_BLOCK:
+		return mapBlockIndex.count(inv.hash) || mapOrphanBlocks.count(inv.hash);	
+	}
+	return true;
+}
+	
 
 int HandleSocket(CNode *pnode)
 {
@@ -220,7 +247,7 @@ bool ProcessMessage(CNode* pfrom, string strCommand, CDataStream& vRecv)
 			vAddrOk.push_back(addr);
 
 			//print each addr
-			cout << "addr: " << addr.ToString() << endl;
+			//cout << "addr: " << addr.ToString() << endl;
 		}
 		addrman.Add(vAddrOk, pfrom->addr, 2 * 60 * 60);
 		if(vAddr.size() < 1000)
@@ -229,6 +256,26 @@ bool ProcessMessage(CNode* pfrom, string strCommand, CDataStream& vRecv)
 			pfrom->fDisconnect = true;
 	}	
 	
+	else if(strCommand == "inv")
+	{
+		vector<CInv> vInv;
+		vRecv >> vInv;
+		if(vInv.size() > MAX_INV_SZ)
+		{
+			//Misbehaving(pfrom->GetId(), 20);
+			return error("message inv size() = %u", vInv.size());	
+		}
+
+		for(unsigned int nInv = 0; nInv < vInv.size(); nInv++)
+		{
+			const CInv &inv = vInv[nInv];
+			
+			pfrom->AddInventoryKnown(inv);
+			
+			bool fAlreadyHave = AlreadyHave(inv);
+			LogPrintf("got inventory: %s  %s\n", inv.ToString(), fAlreadyHave ? "have" : "new");
+		}
+	}	
 	
 	return true;
 }
