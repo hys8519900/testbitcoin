@@ -9,6 +9,7 @@
 using std::cout;
 using std::endl;
 using std::string;
+using std::vector;
 
 typedef long long int64; 
 typedef unsigned long long uint64; 
@@ -185,6 +186,48 @@ bool ProcessMessage(CNode* pfrom, string strCommand, CDataStream& vRecv)
 		pfrom->SetRecvVersion(std::min(pfrom->nVersion, PROTOCOL_VERSION));	
 	}
 
+	else if(strCommand == "addr")
+	{
+		vector<CAddress> vAddr;
+		vRecv >> vAddr;
+		
+		//Don't want addr from older versions unless seeding
+		if(pfrom->nVersion < CADDR_TIME_VERSION && addrman.size() > 1000)
+			return true;
+		if(vAddr.size() > 1000)
+		{
+			//Misbehaving(pfrom->GetId(), 20);
+			return error("message addr size() = %u", vAddr.size());
+		}
+
+		// Store the new addresses
+		vector<CAddress> vAddrOk;
+		int64_t nNow = GetAdjustedTime();
+		int64_t nSince = nNow - 10 * 60;
+		BOOST_FOREACH(CAddress& addr, vAddr)
+		{
+			if(addr.nTime <= 100000000 || addr.nTime > nNow + 10 * 60)
+				addr.nTime = nNow - 5 * 24 * 60 * 60;
+			pfrom->AddAddressKnown(addr);
+			bool fReachable = IsReachable(addr);
+			if(addr.nTime > nSince && !pfrom->fGetAddr && vAddr.size() <= 10 && addr.IsRoutable())
+			{
+				//...	
+			}
+			//...
+			//Do not store address outside our network
+			if(fReachable)
+			vAddrOk.push_back(addr);
+
+			//print each addr
+			cout << "addr: " << addr.ToString() << endl;
+		}
+		addrman.Add(vAddrOk, pfrom->addr, 2 * 60 * 60);
+		if(vAddr.size() < 1000)
+			pfrom->fGetAddr = false;
+		if(pfrom->fOneShot)
+			pfrom->fDisconnect = true;
+	}	
 	
 	
 	return true;
