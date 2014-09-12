@@ -274,6 +274,17 @@ bool ProcessMessage(CNode* pfrom, string strCommand, CDataStream& vRecv)
 			
 			//bool fAlreadyHave = AlreadyHave(inv);
 			LogPrintf("got inventory: %s\n", inv.ToString());
+
+			if(!fImporting && !fReindex)
+			{
+				if(inv.type == MSG_BLOCK)
+					AddBlockToQueue(pfrom-GetId(), inv.hash);
+				else
+					pfrom->AskFor(inv);
+			}
+			
+			//Track requests for our stuff
+			//g_signals.Inventory(inv.hash);
 		}
 	}	
 	
@@ -352,6 +363,7 @@ int main()
 {
 	SelectParams(CBaseChainParams::MAIN);
 	fPrintToConsole = true;
+
 
 	CAddress addr;
 	const char *pszDest = "192.168.1.105";
