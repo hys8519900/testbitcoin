@@ -278,17 +278,112 @@ bool ProcessMessage(CNode* pfrom, string strCommand, CDataStream& vRecv)
 			if(!fImporting && !fReindex)
 			{
 				if(inv.type == MSG_BLOCK)
-					AddBlockToQueue(pfrom-GetId(), inv.hash);
+				{
+					//AddBlockToQueue(pfrom->GetId(), inv.hash);
+				}
 				else
+				{
 					pfrom->AskFor(inv);
+				}
 			}
 			
 			//Track requests for our stuff
 			//g_signals.Inventory(inv.hash);
 		}
 	}	
+
+	else if(strCommand == "getadat")
+	{
+		vector<CInv> vInv;
+		vRecv >> vInv;
+		if(vInv.size() > MAX_INV_SZ)
+		{
+			//Misbehaving(pfrom->GetId(), 20);
+			return error("message getdata size() = %u", vInv.size());
+		}
+
+		LogPrintf("received getdata (%u invsz)\n", vInv.size());
+		
+		//pfrom->vRecvGetData.insert(pfrom->vRecvGetData.end(), vInv.begin(), vInv.end());
+		//ProcessGetData(pfrom);
+	}	
+
+	else if(strCommand == "getblocks")
+	{
+		//...
+	}
+
+	else if(strCommand == "getheaders")
+	{
+		//...
+	}
+
+	else if(strCommand == "tx")
+	{
+		//...
+	}
+
+	else if(strCommand == "block" && !fImporting && !fReindex)
+	{
+		//...
+	}
+
+	else if(strCommand == "getaddr")
+	{
+		//...
+	}
+
+	else if(strCommand == "mempool")
+	{
+		//...
+	}
 	
+	else if(strCommand == "ping")
+	{
+		//...
+	}
+	
+	else if(strCommand == "pong")
+	{
+		//...
+	}
+
+	else if(strCommand == "filterload")
+	{
+		//...
+	}
+
+	else if(strCommand == "filteradd")
+	{
+		//...
+	}
+
+
+	else if(strCommand == "filterclear")
+	{
+		//...
+	}
+
+
+	else if(strCommand == "reject")
+	{
+		//...
+	}
+
+
+	else
+	{
+		// Ignore unknown commands for extensibility
+	}
+
+	//Update the last seen time for this node's address
+	if(pfrom->fNetworkNode)
+		if(strCommand == "version" || strCommand == "addr" || strCommand == "inv" || strCommand == "getdata" || strCommand == "ping")
+			AddressCurrentlyConnected(pfrom->addr);
+
+
 	return true;
+
 }
 
 bool ProcessNodeMessages(CNode* pfrom)
