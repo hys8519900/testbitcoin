@@ -9,5 +9,11 @@ all : $(OBJ)
 $(OBJDIR)/% : %.cpp
 	g++ $< -o $@ $(LDFLAGS)
 
+runall : $(OBJ)
+
+$(OBJDIR)/% : %.cpp
+	g++ $< -o $@ $(LDFLAGS)
+	./$@
+
 tmpgdb : m_LogPrint.cpp
 	g++ $< -o bin/$@ $(LDFLAGS) -g -O0
