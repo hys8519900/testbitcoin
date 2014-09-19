@@ -292,7 +292,7 @@ bool ProcessMessage(CNode* pfrom, string strCommand, CDataStream& vRecv)
 		}
 	}	
 
-	else if(strCommand == "getadat")
+	else if(strCommand == "getdata")
 	{
 		vector<CInv> vInv;
 		vRecv >> vInv;
