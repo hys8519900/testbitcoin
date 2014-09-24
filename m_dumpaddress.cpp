@@ -20,5 +20,8 @@ int main()
 	CAddrMan addrman;	
 	CAddress addr(CService("94.113.93.139"));
 	addrman.Add(addr, addr);
+	addr.SetIP(CNetAddr("94.23.55.224"));
+	addrman.Add(addr, addr);
+	
 	adb.Write(addrman);
 }
