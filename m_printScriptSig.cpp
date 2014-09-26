@@ -125,6 +125,7 @@ int main()
 			CDiskBlockIndex diskindex;
 			ssValue >> diskindex;
 			
+			/*
 			cout<<"height: "<<diskindex.nHeight<<endl;
 			cout<<"block hash: "<<diskindex.GetBlockHash().ToString()<<endl;
 			cout<<"nFile: "<<diskindex.nFile<<endl;
@@ -138,6 +139,7 @@ int main()
 			cout<<"Status: "<<diskindex.nStatus<<endl;
 			cout<<"Tx: "<<diskindex.nTx<<endl;
 			cout<<endl;
+			*/
 
 			CBlockIndex* pindexNew = InsertBlockIndex(diskindex.GetBlockHash());
 			pindexNew->pprev         = InsertBlockIndex(diskindex.hashPrev);
@@ -174,16 +176,17 @@ int main()
 	for(map<uint256, CBlockIndex*>::iterator mi = mapBlockIndex.begin(); mi != mapBlockIndex.end(); ++mi)
 	{
 		CBlockIndex* pindex = (*mi).second;
-		cout<<"file: "<<pindex->GetBlockPos().nFile<<" pos: "<<pindex->GetBlockPos().nPos<<endl;
+		//cout<<"file: "<<pindex->GetBlockPos().nFile<<" pos: "<<pindex->GetBlockPos().nPos<<endl;
 		CBlock block;
 		if(ReadBlockFromDisk(block, pindex->GetBlockPos()))
 		{
-			cout<<"block hash: "<<block.GetHash().ToString()<<endl;
+			//cout<<"block hash: "<<block.GetHash().ToString()<<endl;
 			for(unsigned int i = 0; i < block.vtx.size(); i++)
 			{
-				cout<<" "<<block.vtx[i].ToString()<<" ";
+				if(block.GetHash() == uint256("0x000000000019d6689c085ae165831e934ff763ae46a2a6c172b3f1b60a8ce26f"))
+				cout<<" "<<block.vtx[i].vin[0].scriptSig.ToString()<<" ";
 			}
-			sleep(1);
+			sleep(0.1);
 		}
 	}
 }
