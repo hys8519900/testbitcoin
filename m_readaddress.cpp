@@ -117,4 +117,6 @@ int main()
 	CAddrMan addrman;	
 	adb.Read(addrman);
 	cout << "size: " << addrman.size() << endl;
+	vector<CAddress> vAddr = addrman.GetAddr();
+	cout << "vAddr size: " << vAddr.size() << endl;
 }
