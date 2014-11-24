@@ -306,7 +306,7 @@ int main()
 	fPrintToConsole = true;
 
 	CAddress addr;
-	const char *pszDest = "151.225.32.8";
+	const char *pszDest = "172.249.211.17";
 	CNode *pnode = ConnectNode(addr, pszDest);
 	if(pnode){
 		cout<< "ConnectNode() " <<endl;

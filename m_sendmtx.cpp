@@ -228,30 +228,10 @@ bool ProcessMessage(CNode* pfrom, string strCommand, CDataStream& vRecv)
 			pfrom->fDisconnect = true;
 	}	
 	
-	else if(strCommand == "inv")
+	else if(strCommand == "getdata")
 	{
-		vector<CInv> vInv;
-		vRecv >> vInv;	
-		if(vInv.size() > MAX_INV_SZ)
-		{
-			//Misbehaving
-		}
-		
-		for(unsigned int nInv = 0; nInv < vInv.size(); nInv++)
-		{
-			const CInv &inv = vInv[nInv];
-			
-			pfrom->AddInventoryKnown(inv);
-			
-			if(inv.type != MSG_BLOCK)
-				pfrom->AskFor(inv); //this will insert inv into mapAskFor
-		}
-	}
-		
-	else if(strCommand == "tx")
-	{
-		cout << "recive tx message" << endl;		
-	}
+		//send tx message	
+	}	
 
 	return true;
 }
@@ -315,25 +295,7 @@ bool ProcessNodeMessages(CNode* pfrom)
 
 bool SendNodeMessages(CNode* pto)
 {
-	//
-	// Message: getdata (non-blocks)
-	//
-
-	int64_t nNow = GetTimeMicros();	
-	vector<CInv> vGetData;
-
-	while(!pto->fDisconnect && !pto->mapAskFor.empty() && (*pto->mapAskFor.begin()).first <= nNow)
-	{
-		const CInv& inv = (*pto->mapAskFor.begin()).second;
-		LogPrintf("sending getdata: %s\n", inv.ToString());
-		vGetData.push_back(inv);
-		if(vGetData.size() >= 3)
-		{
-			pto->PushMessage("getdata", vGetData);
-			vGetData.clear();
-		}
-		pto->mapAskFor.erase(pto->mapAskFor.begin());
-	}	
+	//pto->PushMessage("inv", vInv);
 }
 
 void MessageHandler(CNode* pnode)
@@ -345,10 +307,7 @@ void MessageHandler(CNode* pnode)
 int main()
 {
 	SelectParams(CChainParams::MAIN);
-	fPrintToConsole = false;
-	LogPrintf("ssss\n");
-	cout<< "aaa" << endl;
-	return 0;
+	fPrintToConsole = true;
 
 	CAddress addr;
 	const char *pszDest = "151.225.32.8";

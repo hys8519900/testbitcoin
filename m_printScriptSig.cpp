@@ -4,6 +4,7 @@
 #include <iostream>
 #include "leveldb/db.h"
 #include <unistd.h>
+#include <boost/foreach.hpp>
 //for sleep
 #include "main.h"
 
@@ -171,6 +172,7 @@ int main()
 	delete it;
 	delete db;
 
+/*
 	//read blockindex to mapBlockIndex finsh
 	//use mapBlockIndex read Block
 	for(map<uint256, CBlockIndex*>::iterator mi = mapBlockIndex.begin(); mi != mapBlockIndex.end(); ++mi)
@@ -186,7 +188,43 @@ int main()
 				if(block.GetHash() == uint256("0x000000000019d6689c085ae165831e934ff763ae46a2a6c172b3f1b60a8ce26f"))
 				cout<<" "<<block.vtx[i].vin[0].scriptSig.ToString()<<" ";
 			}
-			sleep(0.1);
 		}
 	}
+*/
+
+
+#ifdef COMM
+	BOOST_FOREACH(const PAIRTYPE(uint256, CBlockIndex*)& item, mapBlockIndex)
+	{
+		CBlockIndex* pindex = item.second;
+		if(item.first == *(pindex->phashBlock))
+		{
+			cout << item.first.ToString() << endl;
+		}
+		else
+		{
+			cout << "error" << endl;
+			return 1;
+		}
+/*
+		CBlock block;
+		if(ReadBlockFromDisk(block, pindex->GetBlockPos()))
+		{
+			cout << block.GetBlockHeader().GetHash().ToString() << endl;
+		}
+*/
+	}
+#endif
+	
+	cout << mapBlockIndex.size() << endl;
+
+	CValidationState state;
+	if(!ActivateBestChain(state))
+	{
+		cout << "ActiveateBestChain error" << endl;
+	}
+
+	if(chainActive.Genesis() == NULL)
+		cout << "genesis is NULL" << endl;
 }
+	
