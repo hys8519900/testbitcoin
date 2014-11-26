@@ -116,7 +116,22 @@ int main()
 	CAddrDB_m adb;
 	CAddrMan addrman;	
 	adb.Read(addrman);
+		
+	CAddress addr;
+	std::set<CAddress> addrSet;
+	while(addrSet.size() < addrman.size())
+	{
+		addr = addrman.Select();
+		addrSet.insert(addr);
+	}
+
+	BOOST_FOREACH(const CAddress& b_addr, addrSet)
+	{
+		cout << b_addr.ToString() << endl;
+	}
+
 	cout << "size: " << addrman.size() << endl;
 	vector<CAddress> vAddr = addrman.GetAddr();
 	cout << "vAddr size: " << vAddr.size() << endl;
+
 }

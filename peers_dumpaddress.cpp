@@ -111,15 +111,28 @@ public:
 	
 };
 
+unsigned int m_pnSeed[]
+{
+	0x7e6a692e, 0x7d04d1a2, 0x6c0c17d9, 0xdb330ab9, 0xc649c7c6, 0x7895484d, 0x047109b0, 0xb90ca5bc,
+};
 
 int main()
 {
 	CAddrDB_m adb;
 	CAddrMan addrman;	
-	CAddress addr(CService("94.113.93.139"));
-	addrman.Add(addr, addr);
-	addr.SetIP(CNetAddr("94.23.55.224"));
-	addrman.Add(addr, addr);
+	//CAddress addr(CService("94.113.93.139"));
+	//addrman.Add(addr, addr);
+	//CAddress addr;
+	//addr.SetIP(CNetAddr("34.34.34.34"));
+	//addrman.Add(addr, addr);
 	
+	for(unsigned int i = 0; i < ARRAYLEN(m_pnSeed); i++)
+	{
+		struct in_addr ip;
+		memcpy(&ip, &m_pnSeed[i], sizeof(ip));
+		CAddress addr(CService(ip, 9333));
+		addrman.Add(addr, addr);
+	}
+
 	adb.Write(addrman);
 }

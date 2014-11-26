@@ -193,13 +193,13 @@ int main()
 */
 
 
-#ifdef COMM
+#ifndef COMM
 	BOOST_FOREACH(const PAIRTYPE(uint256, CBlockIndex*)& item, mapBlockIndex)
 	{
 		CBlockIndex* pindex = item.second;
 		if(item.first == *(pindex->phashBlock))
 		{
-			cout << item.first.ToString() << endl;
+			cout << item.first.ToString() << " height: " << pindex->nHeight<< endl;
 		}
 		else
 		{
@@ -218,13 +218,8 @@ int main()
 	
 	cout << mapBlockIndex.size() << endl;
 
-	CValidationState state;
-	if(!ActivateBestChain(state))
-	{
-		cout << "ActiveateBestChain error" << endl;
-	}
-
 	if(chainActive.Genesis() == NULL)
 		cout << "genesis is NULL" << endl;
+	cout << "chainActive Height(): " << chainActive.Height() << endl;
 }
 	
