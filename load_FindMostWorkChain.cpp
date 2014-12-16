@@ -10,6 +10,27 @@
 
 using namespace std;
 
+// Internal stuff
+// setBlockIndexVaild compator
+struct CBlockIndexWorkComparator
+{
+	bool operator()(CBlockIndex *pa, CBlockIndex *pb) {
+		if (pa->nChainWork > pb->nChainWork) return false;
+		if (pa->nChainWork < pb->nChainWork) return true;
+
+		if (pa->nSequenceId < pb->nSequenceId) return false;
+		if (pa->nSequenceId > pb->nSequenceId) return true;
+
+		if (pa < pb) return false;
+		if (pa > pb) return true;
+
+		return false;
+	}
+};
+
+CBlockIndex *pindexBestInvalid;
+set<CBlockIndex*, CBlockIndexWorkComparator> setBlockIndexVaild;
+
 void FindMostWorkChain()
 {
 	CBlockIndex *pindexNew = NULL;
@@ -110,8 +131,34 @@ int main()
 		CBlockIndex* pindex = item.second;
 		vSortedByHeight.push_back(make_pair(pindex->nHeight, pindex));
 	}
+	sort(vSortedByHeight.begin(), vSortedByHeight.end());
+	BOOST_FOREACH(const PAIRTYPE(int, CBlockIndex*)& item, vSortedByHeight)
+	{
+		CBlockIndex* pindex = item.second;
+		pindex->nChainWork = (pindex->pprev ? pindex->pprev->nChainWork : 0) + pindex->GetBlockWork().getuint256();
+		pindex->nChainTx = (pindex->pprev ? pindex->pprev->nChainTx : 0) + pindex->nTx;
+		if((pindex->nStatus & BLOCK_FAILED_MASK) >= BLOCK_VALID_TRANSACTIONS && !(pindex->nStatus & BLOCK_FAILED_MASK))
+			setBlockIndexVaild.insert(pindex);		
+		if(pindex->nStatus & BLOCK_FAILED_MASK && (!pindexBestInvalid || pindex->nChainWork > pindexBestInvalid->nChainWork))
+			pindexBestInvalid = pindex;
+	}	
 	
+#ifdef PRINT_vSortedByHeight
+	//print vSortedByHeight
+	BOOST_REVERSE_FOREACH(const PAIRTYPE(int, CBlockIndex*)& item, vSortedByHeight)
+	{
+		cout << "height: " << item.first << " nStatus: " << (item.second->nStatus) << endl;
+
+		//sleep(0.06);
+	}
+
+
+#endif
+
+	BOOST_FOREACH(const CBlockIndex* item, setBlockIndexVaild)
+	{
+		cout << item->ToString() << endl;
+	}	 	
 
 	FindMostWorkChain();
 }
-	
