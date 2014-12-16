@@ -102,6 +102,16 @@ int main()
 	}
 #endif
 	
+	// Calulate nChainWork
+	vector<pair<int, CBlockIndex*> > vSortedByHeight;
+	vSortedByHeight.reserve(mapBlockIndex.size());
+	BOOST_FOREACH(const PAIRTYPE(uint256, CBlockIndex*)& item, mapBlockIndex)
+	{
+		CBlockIndex* pindex = item.second;
+		vSortedByHeight.push_back(make_pair(pindex->nHeight, pindex));
+	}
+	
+
 	FindMostWorkChain();
 }
 	

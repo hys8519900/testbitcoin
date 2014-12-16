@@ -1,4 +1,4 @@
-LDFLAGS = -DHAVE_WORKING_BOOST_SLEEP -lbitcoin_server -lbitcoin_cli -lbitcoin_wallet -L. -I./leveldb/include/ -L./leveldb -lleveldb -lmemenv -lbitcoin_common -lboost_system -lboost_program_options -lboost_filesystem -lboost_thread -lcrypto  -pthread  -lanl -ldb_cxx-4.8 -lssl
+LDFLAGS = -DHAVE_WORKING_BOOST_SLEEP -lbitcoin_server -lbitcoin_cli -lbitcoin_wallet -L. -I./leveldb/include/ -L./leveldb -lleveldb -lmemenv -lbitcoin_common -lboost_system -lboost_program_options -lboost_filesystem -lboost_thread -lcrypto  -pthread  -lanl -ldb_cxx-4.8 -lssl -lminiupnpc
 	
 OBJDIR = bin
 SRC = $(wildcard *.cpp)
