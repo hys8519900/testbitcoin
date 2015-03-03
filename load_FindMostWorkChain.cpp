@@ -137,7 +137,7 @@ int main()
 		CBlockIndex* pindex = item.second;
 		pindex->nChainWork = (pindex->pprev ? pindex->pprev->nChainWork : 0) + pindex->GetBlockWork().getuint256();
 		pindex->nChainTx = (pindex->pprev ? pindex->pprev->nChainTx : 0) + pindex->nTx;
-		if((pindex->nStatus & BLOCK_FAILED_MASK) >= BLOCK_VALID_TRANSACTIONS && !(pindex->nStatus & BLOCK_FAILED_MASK))
+		if((pindex->nStatus & BLOCK_VALID_MASK) >= BLOCK_VALID_TRANSACTIONS && !(pindex->nStatus & BLOCK_FAILED_MASK))
 			setBlockIndexVaild.insert(pindex);		
 		if(pindex->nStatus & BLOCK_FAILED_MASK && (!pindexBestInvalid || pindex->nChainWork > pindexBestInvalid->nChainWork))
 			pindexBestInvalid = pindex;
@@ -155,10 +155,14 @@ int main()
 
 #endif
 
+	cout << "setBlockIndexVaild size: " << setBlockIndexVaild.size() << endl;
+
+#ifdef PRINT_setBlockIndexVaild
 	BOOST_FOREACH(const CBlockIndex* item, setBlockIndexVaild)
 	{
 		cout << item->ToString() << endl;
 	}	 	
+#endif
 
 	FindMostWorkChain();
 }
